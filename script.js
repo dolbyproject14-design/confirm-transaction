@@ -1,4 +1,4 @@
-var TARGET_NAME  = 'Michael Tanuwijaya (BCA •••• 5521)';
+var TARGET_NAME  = 'AHMAD SYIHAB (BCA •••• 5521)';
 var TOTAL_AMOUNT = 'Rp402.500';
 
 (function injectStyle() {

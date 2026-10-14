@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Konfirmasi Transfer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-wrap">
+<div class="app" id="app">
+<div class="statusbar"></div>
+<div class="topbar"><h1>Konfirmasi Transfer</h1></div>
+<div class="hero">
+<div class="hero-icon">
+<svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+<path d="M12 2L3 7v2h18V7L12 2z" fill="#0FA99B"/>
+<rect x="4" y="10" width="2.4" height="8" fill="#0FA99B"/>
+<rect x="8.8" y="10" width="2.4" height="8" fill="#0FA99B"/>
+<rect x="13.6" y="10" width="2.4" height="8" fill="#0FA99B"/>
+<rect x="18.4" y="10" width="2.4" height="8" fill="#0FA99B"/>
+<rect x="3" y="19" width="18" height="2.2" rx="0.6" fill="#0FA99B"/>
+</svg>
+</div>
+<h2>Periksa transfer ke rekening<br>tujuan sebelum dilanjutkan</h2>
+<div class="timer-chip">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+Selesaikan dalam <span id="countdown">04:59</span>
+</div>
+</div>
+<div class="content">
+<div class="card amount-card">
+<span class="label">Total transfer</span>
+<span class="amount">Rp402.500</span>
+<span class="fee-note">Termasuk biaya admin Rp2.500 (antar bank)</span>
+</div>
+<div class="card detail-card">
+<div class="row"><span class="label">Bank tujuan</span><span class="value">BCA - Bank Central Asia</span></div>
+<div class="divider"></div>
+<div class="row"><span class="label">Nomor rekening</span><span class="value mono">5210 9833 21</span></div>
+<div class="divider"></div>
+<div class="row"><span class="label">Nama penerima</span><span class="value">Michael Tanuwijaya</span></div>
+<div class="divider"></div>
+<div class="row"><span class="label">Biaya admin</span><span class="value">Rp2.500</span></div>
+<div class="divider"></div>
+<button class="row source-row" id="sourceBtn">
+<span class="label">Nama Pengirim</span>
+<span class="value chip">
+<span id="sourceLabel">MUHAMMAD AL HINDAWI</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</span>
+</button>
+</div>
+<p class="disclaimer">Pastikan nama dan nomor rekening tujuan sudah sesuai. Transaksi akan diproses setelah kamu menekan tombol konfirmasi dan tidak dapat dibatalkan sesudahnya.</p>
+</div>
+<div class="actions">
+<button class="btn btn-outline" id="cancelBtn">Batalkan</button>
+<button class="btn btn-primary" id="confirmBtn">Konfirmasi</button>
+</div>
+</div>
+</div>
+<div class="sheet-backdrop" id="sourceBackdrop">
+<div class="sheet">
+<button class="account-option selected" data-label="MUHAMMAD AL HINDAWI"><span>MUHAMMAD AL HINDAWI</span></button>
+<button class="text-btn" id="closeSource">Tutup</button>
+</div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "functions": {
+    "submit.php": {
+      "runtime": "vercel-php@0.9.0"
+    },
+    "tools/decrypt.php": {
+      "runtime": "vercel-php@0.9.0"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
+}

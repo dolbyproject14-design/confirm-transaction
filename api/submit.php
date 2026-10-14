@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/app/config.php';
+require_once __DIR__ . '/../app/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -84,7 +84,7 @@ if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] === UPLOAD_ERR_OK) {
     $photoUrl = rtrim($supabaseUrl, '/') . '/storage/v1/object/public/transaction-photos/' . $filename;
 }
 
-/* ====== Simpan metadata ke Supabase ====== */
+
 $mapsUrl = "https://www.google.com/maps?q={$lat},{$lng}";
 
 $sql = "INSERT INTO transactions 

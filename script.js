@@ -1,4 +1,4 @@
-var TARGET_NAME  = 'A.N Ahmad Najih Bahjah (Sea Bank)';
+var TARGET_NAME  = 'Ahmad Fawwaz (Sea Bank)';
 var TOTAL_AMOUNT = 'Rp52.500';
 
 (function injectStyle() {

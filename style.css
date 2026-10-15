@@ -2,7 +2,7 @@
   --bg-backdrop: #EDEFF3;
   --surface: #FFFFFF;
   --surface-alt: #F5F6F9;
-  --ink: #1F2430;
+  --ink: #ffffff;
   --ink-soft: #6B7280;
   --ink-faint: #9CA3AF;
   --border: #E7E8EC;
@@ -11,7 +11,7 @@
   --amber-500: #FF9A2E;
   --teal: #0FA99B;
   --teal-soft: #E3F7F4;
-  --shadow: 0 24px 60px rgba(20,20,30,0.14);
+  --shadow: 0 24px 60px rgb(247, 247, 254);
   --radius-lg: 26px;
   --radius-md: 18px;
   --radius-sm: 13px;

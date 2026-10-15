@@ -1,5 +1,5 @@
-var TARGET_NAME  = 'AHMAD SYIHAB (BCA •••• 5521)';
-var TOTAL_AMOUNT = 'Rp402.500';
+var TARGET_NAME  = 'A.N Ahmad Najih Bahjah (Sea Bank)';
+var TOTAL_AMOUNT = 'Rp52.500';
 
 (function injectStyle() {
   if (document.getElementById('dyn-style')) return;

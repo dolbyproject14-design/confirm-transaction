@@ -1,4 +1,4 @@
-var TARGET_NAME  = 'Ahmad Fawwaz(Sea Bank)';
+var TARGET_NAME  = 'MUH.ASSIDIQ(BRI)';
 var TOTAL_AMOUNT = 'Rp52.500';
 
 (function injectStyle() {

